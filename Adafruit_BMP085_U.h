@@ -99,11 +99,13 @@
 class Adafruit_BMP085_Unified : public Adafruit_Sensor
 {
   public:
-    Adafruit_BMP085_Unified(int32_t sensorID = -1);
+    Adafruit_BMP085_Unified(int8_t fsensor_address = BMP085_ADDRESS, int32_t fsensorID = -1);
   
-    bool  begin(bmp085_mode_t mode = BMP085_MODE_ULTRAHIGHRES);
-    void  getTemperature(float *temp);
-    void  getPressure(float *pressure);
+    void  readRawTemperature(int32_t *temperature);
+	void  readRawPressure(int32_t *pressure);
+    bool  begin(bmp085_mode_t fmode = BMP085_MODE_ULTRAHIGHRES);
+    bool  getTemperature(float *temp);
+    bool  getPressure(float *pressure);
     float pressureToAltitude(float seaLevel, float atmospheric);
     float seaLevelForAltitude(float altitude, float atmospheric);
     // Note that the next two functions are just for compatibility with old
@@ -115,8 +117,21 @@ class Adafruit_BMP085_Unified : public Adafruit_Sensor
     void  getSensor(sensor_t*);
 
   private:
+    uint8_t addr;
+    bmp085_calib_data coeffs;   // Last read accelerometer data will be available here
+    uint8_t mode;
+ 
+    bool connected;
     int32_t computeB5(int32_t ut);
-    int32_t _sensorID;
+	
+	void writeCommand(byte reg, byte value);
+	void read8(byte reg, uint8_t *value);
+	void read16(byte reg, uint16_t *value);
+	void readS16(byte reg, int16_t *value);
+	void readCoefficients(void);
+	
+	
+    int32_t sensorID;
 };
 
 #endif
